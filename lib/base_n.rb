@@ -16,7 +16,7 @@ module BaseN
   end
 
   class Encoder
-   PRIMITIVES = ((0..9).collect { |i| i.to_s } + ('A'..'Z').to_a + ('a'..'z').to_a).map(&:freeze).freeze
+    PRIMITIVES = ((0..9).collect { |i| i.to_s } + ('A'..'Z').to_a + ('a'..'z').to_a + %w(- _)).map(&:freeze).freeze
 
     attr_accessor :base
 
@@ -31,7 +31,7 @@ module BaseN
     end
 
     def primitives
-      PRIMITIVES
+      PRIMITIVES[0, base]
     end
 
     def decode subject
@@ -41,11 +41,11 @@ module BaseN
 
       total = 0
       s.each_with_index do |char, index|
-	if ord = primitives.index(char)
-	  total += ord * (base ** index)
-	else
-	  raise ArgumentError, "#{subject} has #{char} which is not valid"
-	end
+        if ord = primitives.index(char)
+          total += ord * (base ** index)
+        else
+          raise ArgumentError, "#{subject} has #{char} which is not valid"
+        end
       end
       total
     end
@@ -59,11 +59,24 @@ module BaseN
       s = ''
 
       while i > 0
-	s << primitives[i.modulo(base)]
-	i /= base
+        s << primitives[i.modulo(base)]
+        i /= base
       end
       s = '0' if s == ''
       Number.new s.reverse, base
     end
+  end
+end
+
+if __FILE__ == $0
+  include BaseN
+  2.upto Encoder::PRIMITIVES.size do |n|
+    puts "Base 10 | Base #{n} converted"
+    e = Encoder.new n
+    0.upto Encoder::PRIMITIVES.size + 1 do |n|
+      s = e.encode(n).to_s
+      puts "%7s | %s" % [ n, s ]
+    end
+    puts "-" * 80
   end
 end
