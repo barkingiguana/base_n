@@ -16,7 +16,7 @@ module BaseN
   end
 
   class Encoder
-    PRIMITIVES = ((0..9).collect { |i| i.to_s } + ('A'..'Z').to_a + ('a'..'z').to_a + %w(- _)).map(&:freeze).freeze
+    PRIMITIVES = ((0..9).collect { |i| i.to_s } + ('A'..'Z').to_a + ('a'..'z').to_a + %w(! " # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \\ ] ^ _ ` { | } ~)).map(&:freeze).freeze
 
     attr_accessor :base
 
@@ -24,6 +24,10 @@ module BaseN
       self.base = base
       raise "I only support bases 2 and above" if base < 2
       raise "I only support up to base #{primitives.size}" if base > primitives.size
+    end
+
+    def self.highest_supported
+      new PRIMITIVES.size
     end
 
     def case_sensitive?
