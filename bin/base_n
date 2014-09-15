@@ -1,0 +1,48 @@
+#! /usr/bin/env ruby
+
+require 'optparse'
+
+options = {
+  from_base: 10,
+  to_base: 16,
+  quiet: false
+}
+OptionParser.new do |opts|
+  opts.banner = "Usage: base_n [options]"
+
+  opts.on("-q", "--[no-]quiet", "Run with minimal output") do |v|
+    options[:quiet] = v
+  end
+
+  opts.on('-f', '--from-base [base]', 'Base to convert from (default: 10)') do |b|
+    options[:from_base] = b.to_i
+  end
+
+  opts.on('-t', '--to-base [base]', 'Base to convert to (default: 16)') do |b|
+    options[:to_base] = b.to_i
+  end
+
+  opts.on('-n', '--from-number NUMBER', 'Number to convert between bases') do |n|
+    options[:number] = n
+  end
+
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+end.parse!
+
+if options[:number].nil?
+  puts "Needs -n number"
+  exit 1
+end
+
+require 'base_n'
+
+n = BaseN::Number.new options[:number], options[:from_base]
+i = n.rebase options[:to_base]
+if $stdout.tty? && !options[:quiet]
+  puts "%s in base %s => %s in base %s" % [ options[:number], options[:from_base], i.to_s, options[:to_base] ]
+else
+  puts i.to_s
+end
